@@ -207,3 +207,96 @@ meanTmax
 #buggy
 #skiersTempENSOreg <- lm(nySkiers~yearMean$maxTemp+ENSO2$ENSOindex)
 #summary(skiersTempENSOreg)
+
+#Correlating the NAO ----------------------------------------------------------------------------------------------------------------------
+
+NAO <- read.table('nao_index.txt', header = T)
+
+#Creating a matrix for the values
+NAOmean <- matrix(NA,nrow=n,ncol=1)
+row.names(NAOmean) <- 1984:2019
+colnames(NAOmean) <- c('index')
+
+#Setting up the loop 
+for (increment in 1:n){
+  yearData <- 1983 + increment
+  janNAO <- which(NAO$YEAR == yearData & NAO$MONTH == 1) 
+  febNAO <- which(NAO$YEAR == yearData & NAO$MONTH == 2) 
+  marNAO <- which(NAO$YEAR == yearData & NAO$MONTH == 3) 
+  decNAO <- which(NAO$YEAR == yearData-1 & NAO$MONTH ==12) 
+  
+  yearlyIndex <- c(decNAO,janNAO,febNAO,marNAO)
+  yearlyIndex
+  
+  NAOmean[increment,1] <- mean(NAO$INDEX[yearlyIndex])
+  
+}
+
+NAOmean <- as.data.frame(NAOmean)
+years <- 1984:2019
+
+NAOtemp <- cor(NAOmean,yearMean$maxTemp)
+NAOtemp
+
+NAOsnow <- cor(NAOmean,yearMean$snow)
+NAOsnow
+
+#Detrend -------------------------------------------------------------------------------------------------------------------------------
+
+detrendMaxTemp <-  detrend(yearMean$maxTemp)
+detrendMaxTemp
+
+detrendSkiers <- detrend(nySkiers)
+detrendSkiers
+
+cor(yearMean$maxTemp, detrendSkiers, method = 'pearson')
+
+detrendRegressionEmmons <- lm(detrendSkiers~yearMean$maxTemp)
+summary(detrendRegressionEmmons)
+
+coeffsDetrendEmmons <- detrendRegressionEmmons$coefficients
+coeffsDetrendEmmons
+
+#Confidence interval ------------------------------------------------------------------------------------------------------------------
+
+sY <- sd(nySkiers)
+sY
+sX <- sd(yearMean$maxTemp)
+xBar <- mean(yearMean$maxTemp)
+xBar
+xO <- yearMean$maxTemp
+xO
+
+x1 <- mean(yearMean$maxTemp)+2.7
+x1
+
+x2 <- mean(yearMean$maxTemp)+3.6
+x2
+
+r2 <- (tempSkier)^2
+r2
+n<-36
+
+# Having a value for the confidence interval for each time step
+seRegressionX0 <- matrix(NA,nrow=n,ncol=1)
+length(seRegressionX0)
+seRegressionX0[36]
+xO[36]
+for (i in 1:36){
+  seRegressionX0[i] <- sY*(sqrt(1-r2))*(sqrt((n-1)/(n-2)))*(sqrt(1+(1/n)+((xO[i]-xBar)^2/((n-1)*((sX)^2)))))
+}
+
+plot(years,seRegressionX0,type='l')
+confidenceInterval95X0 <- seRegressionX0*2
+
+
+xO <- mean(yearMean$maxTemp)
+xO
+seRegressionX0 <- sY*(sqrt(1-r2))*(sqrt((n-1)/(n-2)))*(sqrt(1+(1/n)+((xO-xBar)^2/((n-1)*((sX)^2)))))
+seRegressionX0
+
+seRegressionX1 <- sY*(sqrt(1-r2))*(sqrt((n-1)/(n-2)))*(sqrt(1+(1/n)+((x1-xBar)^2/((n-1)*((sX)^2)))))
+seRegressionX1
+
+seRegressionX2 <- sY*(sqrt(1-r2))*(sqrt((n-1)/(n-2)))*(sqrt(1+(1/n)+((x2-xBar)^2/((n-1)*((sX)^2)))))
+seRegressionX2
