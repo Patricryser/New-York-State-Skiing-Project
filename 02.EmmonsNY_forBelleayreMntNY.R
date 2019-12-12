@@ -1,9 +1,6 @@
 #Setting working directory -----------------------------------------------------------------------------------------
 
-setwd("~/Columbia/Climate and Society/Quant/Final Project/Data - V2")
-
-install.packages('pracma')
-library(pracma)
+setwd("~/Columbia/Climate and Society/Quant/Final Project/Data")
 
 #upploaing data ----------------------------------------------------------------------------------------------------
 newYorkRaw <- read.csv('EmmonsNY_forBelleayreMntNY.csv')
@@ -204,51 +201,3 @@ meanTmax
 
 skiersTempENSOreg <- lm(nySkiers~yearMean$maxTemp+ENSO2$ENSOindex)
 summary(skiersTempENSOreg)
-
-#Correlating the NAO ----------------------------------------------------------------------------------------------------------------------
-
-NAO <- read.table('nao_index.txt', header = T)
-
-#Creating a matrix for the values
-NAOmean <- matrix(NA,nrow=n,ncol=1)
-row.names(NAOmean) <- 1984:2019
-colnames(NAOmean) <- c('index')
-
-#Setting up the loop 
-for (increment in 1:n){
-  yearData <- 1983 + increment
-  janNAO <- which(NAO$YEAR == yearData & NAO$MONTH == 1) 
-  febNAO <- which(NAO$YEAR == yearData & NAO$MONTH == 2) 
-  marNAO <- which(NAO$YEAR == yearData & NAO$MONTH == 3) 
-  decNAO <- which(NAO$YEAR == yearData-1 & NAO$MONTH ==12) 
-  
-  yearlyIndex <- c(decNAO,janNAO,febNAO,marNAO)
-  yearlyIndex
-  
-  NAOmean[increment,1] <- mean(NAO$INDEX[yearlyIndex])
-  
-}
-
-NAOmean <- as.data.frame(NAOmean)
-years <- 1984:2019
-
-NAOtemp <- cor(NAOmean,yearMean$maxTemp)
-NAOtemp
-
-NAOsnow <- cor(NAOmean,yearMean$snow)
-NAOsnow
-
-#Detrend -------------------------------------------------------------------------------------------------------------------------------
-
-detrendMaxTemp <-  detrend(yearMean$maxTemp)
-detrendMaxTemp
-
-detrendSkiers <- detrend(nySkiers)
-detrendSkiers
-
-cor(yearMean$maxTemp, detrendSkiers)
-
-
-
-
-
