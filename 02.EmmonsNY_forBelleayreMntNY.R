@@ -1,6 +1,9 @@
 #Setting working directory -----------------------------------------------------------------------------------------
 
-setwd("C:/Users/Patri/polybox/Columbia Academics/Quant/Project/DataV1")
+setwd("~/Columbia/Climate and Society/Quant/Final Project/Data - V2")
+
+install.packages('pracma')
+library(pracma)
 
 #upploaing data ----------------------------------------------------------------------------------------------------
 newYorkRaw <- read.csv('EmmonsNY_forBelleayreMntNY.csv')
@@ -95,7 +98,7 @@ yearMean <- as.data.frame(yearMean)
 years <- 1984:2019
 yearMean <- cbind(years,yearMean)
 length(yearMean$maxTemp)
-yearMean
+
 
 plot(years,yearMean$maxTemp, type = 'l')
 
@@ -104,12 +107,11 @@ plot(years,yearMean$minTemp, type = 'l')
 plot(years,yearMean$averageT, type = 'l')
 
 plot(years,yearMean$snow, type = 'l')
+abline(yearRegression,col = 'coral3', lwd=2)
 
-
-yearRegression <- lm(yearMean$snow~yearMean$years)
+yearRegression <- lm(yearMean$years~yearMean$snow)
 
 plot(yearMean$years,yearMean$snow)
-abline(yearRegression,col = 'coral3', lwd=2)
 yearRegression$coefficients
 
 #Calculating the correlation and the regression ---------------------------------------------------------------------------------------------------
@@ -126,7 +128,6 @@ coeffs <- regression$coefficients
 plot(yearMean$maxTemp,yearMean$snow)
 abline(regression,col = 'coral3', lwd=2)
 
-####This part is buggy, SKIP to skiers part
 #Trying to add ENSO --------------------------------------------------------------------------------------------------------------------------------
 
 #Attempt 1
@@ -192,9 +193,6 @@ summary(skiersRegression)
 tempSkier <- cor(nySkiers,yearMean$maxTemp)
 tempSkier
 
-skiersSnowReg <- lm(nySkiers~yearMean$snow)
-summary(skiersSnowReg)
-
 skiersTempReg <- lm(nySkiers~yearMean$maxTemp)
 summary(skiersTempReg)
 
@@ -204,9 +202,8 @@ summary(skiersTempReg)
 meanTmax <- mean(yearMean$maxTemp)
 meanTmax
 
-#buggy
-#skiersTempENSOreg <- lm(nySkiers~yearMean$maxTemp+ENSO2$ENSOindex)
-#summary(skiersTempENSOreg)
+skiersTempENSOreg <- lm(nySkiers~yearMean$maxTemp+ENSO2$ENSOindex)
+summary(skiersTempENSOreg)
 
 #Correlating the NAO ----------------------------------------------------------------------------------------------------------------------
 
@@ -249,54 +246,9 @@ detrendMaxTemp
 detrendSkiers <- detrend(nySkiers)
 detrendSkiers
 
-cor(yearMean$maxTemp, detrendSkiers, method = 'pearson')
-
-detrendRegressionEmmons <- lm(detrendSkiers~yearMean$maxTemp)
-summary(detrendRegressionEmmons)
-
-coeffsDetrendEmmons <- detrendRegressionEmmons$coefficients
-coeffsDetrendEmmons
-
-#Confidence interval ------------------------------------------------------------------------------------------------------------------
-
-sY <- sd(nySkiers)
-sY
-sX <- sd(yearMean$maxTemp)
-xBar <- mean(yearMean$maxTemp)
-xBar
-xO <- yearMean$maxTemp
-xO
-
-x1 <- mean(yearMean$maxTemp)+2.7
-x1
-
-x2 <- mean(yearMean$maxTemp)+3.6
-x2
-
-r2 <- (tempSkier)^2
-r2
-n<-36
-
-# Having a value for the confidence interval for each time step
-seRegressionX0 <- matrix(NA,nrow=n,ncol=1)
-length(seRegressionX0)
-seRegressionX0[36]
-xO[36]
-for (i in 1:36){
-  seRegressionX0[i] <- sY*(sqrt(1-r2))*(sqrt((n-1)/(n-2)))*(sqrt(1+(1/n)+((xO[i]-xBar)^2/((n-1)*((sX)^2)))))
-}
-
-plot(years,seRegressionX0,type='l')
-confidenceInterval95X0 <- seRegressionX0*2
+cor(yearMean$maxTemp, detrendSkiers)
 
 
-xO <- mean(yearMean$maxTemp)
-xO
-seRegressionX0 <- sY*(sqrt(1-r2))*(sqrt((n-1)/(n-2)))*(sqrt(1+(1/n)+((xO-xBar)^2/((n-1)*((sX)^2)))))
-seRegressionX0
 
-seRegressionX1 <- sY*(sqrt(1-r2))*(sqrt((n-1)/(n-2)))*(sqrt(1+(1/n)+((x1-xBar)^2/((n-1)*((sX)^2)))))
-seRegressionX1
 
-seRegressionX2 <- sY*(sqrt(1-r2))*(sqrt((n-1)/(n-2)))*(sqrt(1+(1/n)+((x2-xBar)^2/((n-1)*((sX)^2)))))
-seRegressionX2
+
