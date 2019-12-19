@@ -98,14 +98,36 @@ yearElkMean <- as.data.frame(yearElkMean)
 yearElkMean <- cbind(years,yearElkMean)
 length(yearElkMean$maxTemp)
 
+#The pnorm function to determine the p values.
+nowarming <- yearElkMean$maxTemp
+sd(nowarming)
+warming1.5 <- (yearElkMean$maxTemp)+2.7
+sd(warming1.5)
+warming2 <- (yearElkMean$maxTemp)+3.6
+
+sd(yearElkMean$maxTemp)
+PA_patric <- pnorm(41, mean(nowarming), sd(nowarming)) #no warming ()
+PA_patric1.5 <- pnorm(41, mean(warming1.5), sd(warming1.5)) #1.5 degree warming
+PA_patric2 <- pnorm(41, mean(warming2), sd(warming2)) #2 degree warming
+PA_patric
+PA_patric1.5
+PA_patric2
+hist(nowarming)
+hist(warming1.5)
+hist(warming2)
+
+
+
 
 plot(years,yearElkMean$maxTemp, type = 'l')
 
 plot(years,yearElkMean$minTemp, type = 'l')
 
-#plot(years,yearElkMean$averageT, type = 'l')
+plot(years,yearElkMean$averageT, type = 'l')
 
 plot(years,yearElkMean$snow, type = 'l')
+
+
 
 yearElkRegression <- lm(yearElkMean$years~yearElkMean$snow)
 abline(yearElkRegression,col = 'coral3', lwd=2)
